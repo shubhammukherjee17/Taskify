@@ -1,7 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState } from 'react';
 import { Task } from '@/types/task';
 import { useTask } from '@/contexts/TaskContext';
 import TaskForm from '@/components/TaskForm';
@@ -9,7 +8,6 @@ import TaskItem from '@/components/TaskItem';
 import TaskFilters from '@/components/TaskFilters';
 import TaskStats from '@/components/TaskStats';
 import DarkModeToggle from '@/components/DarkModeToggle';
-import SampleDataLoader from '@/components/SampleDataLoader';
 
 export default function Home() {
   const { filteredAndSortedTasks } = useTask();
@@ -60,9 +58,6 @@ export default function Home() {
 
         {/* Statistics */}
         <TaskStats />
-
-        {/* Sample Data Loader */}
-        <SampleDataLoader />
 
         {/* Filters */}
         <TaskFilters />

@@ -1,5 +1,6 @@
 'use client';
 
+import { motion } from 'framer-motion';
 import { useTask } from '@/contexts/TaskContext';
 
 export default function TaskStats() {
@@ -23,90 +24,196 @@ export default function TaskStats() {
   }, {} as Record<string, number>);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.1 }}
+        whileHover={{ scale: 1.02, y: -5 }}
+        className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 shadow-lg border border-gray-100 dark:border-gray-700 backdrop-blur-sm bg-opacity-80"
+      >
         <div className="flex items-center">
-          <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
-            <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <motion.div 
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.3, type: "spring" }}
+            className="p-2 sm:p-3 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl shadow-lg flex-shrink-0"
+          >
+            <svg className="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
-          </div>
-          <div className="ml-4">
-            <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Tasks</p>
-            <p className="text-2xl font-semibold text-gray-900 dark:text-white">{totalTasks}</p>
+          </motion.div>
+          <div className="ml-3 sm:ml-4 min-w-0">
+            <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 truncate">Total Tasks</p>
+            <motion.p 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.5 }}
+              className="text-xl sm:text-3xl font-bold text-gray-900 dark:text-white"
+            >
+              {totalTasks}
+            </motion.p>
           </div>
         </div>
-      </div>
+      </motion.div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+        whileHover={{ scale: 1.02, y: -5 }}
+        className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 shadow-lg border border-gray-100 dark:border-gray-700 backdrop-blur-sm bg-opacity-80"
+      >
         <div className="flex items-center">
-          <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
-            <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <motion.div 
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.4, type: "spring" }}
+            className="p-2 sm:p-3 bg-gradient-to-r from-green-500 to-green-600 rounded-xl shadow-lg flex-shrink-0"
+          >
+            <svg className="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-          </div>
-          <div className="ml-4">
-            <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Completed</p>
-            <p className="text-2xl font-semibold text-gray-900 dark:text-white">{completedTasks}</p>
+          </motion.div>
+          <div className="ml-3 sm:ml-4 min-w-0">
+            <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 truncate">Completed</p>
+            <motion.p 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.6 }}
+              className="text-xl sm:text-3xl font-bold text-gray-900 dark:text-white"
+            >
+              {completedTasks}
+            </motion.p>
           </div>
         </div>
-      </div>
+      </motion.div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+        whileHover={{ scale: 1.02, y: -5 }}
+        className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 shadow-lg border border-gray-100 dark:border-gray-700 backdrop-blur-sm bg-opacity-80"
+      >
         <div className="flex items-center">
-          <div className="p-2 bg-yellow-100 dark:bg-yellow-900 rounded-lg">
-            <svg className="w-6 h-6 text-yellow-600 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <motion.div 
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.5, type: "spring" }}
+            className="p-2 sm:p-3 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-xl shadow-lg flex-shrink-0"
+          >
+            <svg className="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-          </div>
-          <div className="ml-4">
-            <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Pending</p>
-            <p className="text-2xl font-semibold text-gray-900 dark:text-white">{pendingTasks}</p>
+          </motion.div>
+          <div className="ml-3 sm:ml-4 min-w-0">
+            <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 truncate">Pending</p>
+            <motion.p 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.7 }}
+              className="text-xl sm:text-3xl font-bold text-gray-900 dark:text-white"
+            >
+              {pendingTasks}
+            </motion.p>
           </div>
         </div>
-      </div>
+      </motion.div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.4 }}
+        whileHover={{ scale: 1.02, y: -5 }}
+        className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 shadow-lg border border-gray-100 dark:border-gray-700 backdrop-blur-sm bg-opacity-80"
+      >
         <div className="flex items-center">
-          <div className="p-2 bg-red-100 dark:bg-red-900 rounded-lg">
-            <svg className="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <motion.div 
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.6, type: "spring" }}
+            className="p-3 bg-gradient-to-r from-red-500 to-red-600 rounded-xl shadow-lg"
+          >
+            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.268 15.5c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
-          </div>
+          </motion.div>
           <div className="ml-4">
             <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Overdue</p>
-            <p className="text-2xl font-semibold text-gray-900 dark:text-white">{overdueTasks}</p>
+            <motion.p 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.8 }}
+              className="text-3xl font-bold text-gray-900 dark:text-white"
+            >
+              {overdueTasks}
+            </motion.p>
           </div>
         </div>
-      </div>
+      </motion.div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm md:col-span-2 lg:col-span-4">
-        <div className="flex justify-between items-center mb-2">
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white">Progress</h3>
-          <span className="text-sm text-gray-600 dark:text-gray-400">{completionRate}% Complete</span>
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.5 }}
+        className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-100 dark:border-gray-700 backdrop-blur-sm bg-opacity-80 md:col-span-2 lg:col-span-4"
+      >
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white">Progress Overview</h3>
+          <motion.span 
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.7 }}
+            className="text-sm text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full font-semibold"
+          >
+            {completionRate}% Complete
+          </motion.span>
         </div>
-        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
-          <div 
-            className="bg-blue-600 h-3 rounded-full transition-all duration-300"
-            style={{ width: `${completionRate}%` }}
-          ></div>
+        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4 overflow-hidden">
+          <motion.div 
+            initial={{ width: 0 }}
+            animate={{ width: `${completionRate}%` }}
+            transition={{ duration: 1, delay: 0.8, ease: "easeOut" }}
+            className="bg-gradient-to-r from-blue-500 to-purple-600 h-4 rounded-full shadow-inner"
+          ></motion.div>
         </div>
         
         {(priorityCounts.high || priorityCounts.medium || priorityCounts.low) && (
-          <div className="mt-4 flex flex-wrap gap-4">
-            <span className="text-sm text-gray-600 dark:text-gray-400">Pending by Priority:</span>
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 1 }}
+            className="mt-6 flex flex-wrap gap-4"
+          >
+            <span className="text-sm text-gray-600 dark:text-gray-400 font-medium">Pending by Priority:</span>
             {priorityCounts.high && (
-              <span className="text-sm text-red-600 dark:text-red-400">High: {priorityCounts.high}</span>
+              <motion.span 
+                whileHover={{ scale: 1.05 }}
+                className="text-sm bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400 px-3 py-1 rounded-full font-semibold"
+              >
+                🔴 High: {priorityCounts.high}
+              </motion.span>
             )}
             {priorityCounts.medium && (
-              <span className="text-sm text-yellow-600 dark:text-yellow-400">Medium: {priorityCounts.medium}</span>
+              <motion.span 
+                whileHover={{ scale: 1.05 }}
+                className="text-sm bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400 px-3 py-1 rounded-full font-semibold"
+              >
+                🟡 Medium: {priorityCounts.medium}
+              </motion.span>
             )}
             {priorityCounts.low && (
-              <span className="text-sm text-green-600 dark:text-green-400">Low: {priorityCounts.low}</span>
+              <motion.span 
+                whileHover={{ scale: 1.05 }}
+                className="text-sm bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400 px-3 py-1 rounded-full font-semibold"
+              >
+                🟢 Low: {priorityCounts.low}
+              </motion.span>
             )}
-          </div>
+          </motion.div>
         )}
-      </div>
+      </motion.div>
     </div>
   );
 }

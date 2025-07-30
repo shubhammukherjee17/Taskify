@@ -1,0 +1,26 @@
+<!-- Simple SVG icon that can be converted to PNG -->
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8b5cf6;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="512" height="512" rx="96" ry="96" fill="url(#gradient)"/>
+  
+  <!-- Checkmark and clipboard icon -->
+  <g fill="#ffffff" stroke="#ffffff" stroke-width="12">
+    <!-- Clipboard body -->
+    <rect x="128" y="96" width="256" height="320" rx="24" ry="24" fill="none"/>
+    
+    <!-- Clipboard top -->
+    <rect x="176" y="64" width="160" height="64" rx="12" ry="12" fill="#ffffff"/>
+    
+    <!-- Checkmarks -->
+    <path d="M176 176 L200 200 L240 160" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M176 224 L200 248 L240 208" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M176 272 L200 296 L240 256" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

@@ -25,13 +25,30 @@
 - **Offline Support**: Service worker for offline functionality
 - **Fast Loading**: Optimized with Next.js for lightning-fast performance
 - **TypeScript**: Full type safety and better development experience
-- **Local Storage**: Persist data locally with automatic synchronization
+- **MongoDB Database**: Persistent data storage with cloud sync capability
+- **Real-time Updates**: Automatic synchronization across devices
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 - Node.js 18.x or later
 - npm, yarn, or pnpm package manager
+- MongoDB database (local or cloud)
+
+### MongoDB Setup
+
+You have two options for setting up MongoDB:
+
+#### Option 1: Local MongoDB
+1. Install MongoDB Community Edition from [MongoDB Download Center](https://www.mongodb.com/try/download/community)
+2. Start the MongoDB service
+3. Your connection string will be: `mongodb://localhost:27017/taskify`
+
+#### Option 2: MongoDB Atlas (Cloud)
+1. Create a free account at [MongoDB Atlas](https://www.mongodb.com/atlas)
+2. Create a new cluster
+3. Get your connection string from the Atlas dashboard
+4. Your connection string will look like: `mongodb+srv://username:password@cluster.mongodb.net/taskify?retryWrites=true&w=majority`
 
 ### Installation
 
@@ -50,7 +67,19 @@
    pnpm install
    ```
 
-3. **Run the development server**
+3. **Set up environment variables**
+   ```bash
+   cp .env.local.example .env.local
+   ```
+   
+   Edit `.env.local` and add your MongoDB connection string:
+   ```env
+   MONGODB_URI=mongodb://localhost:27017/taskify
+   # OR for MongoDB Atlas:
+   # MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/taskify?retryWrites=true&w=majority
+   ```
+
+4. **Run the development server**
    ```bash
    npm run dev
    # or
@@ -59,8 +88,14 @@
    pnpm dev
    ```
 
-4. **Open your browser**
+5. **Open your browser**
    Navigate to [http://localhost:3000](http://localhost:3000) to see the app running.
+
+6. **Seed the database (Optional)**
+   ```bash
+   npm run seed
+   ```
+   This will populate your database with sample tasks to get you started.
 
 ### Build for Production
 
@@ -92,6 +127,12 @@ Taskify can be installed as a Progressive Web App on any device:
 - **[TypeScript 5](https://www.typescriptlang.org/)** - Type safety
 - **[Tailwind CSS 4](https://tailwindcss.com/)** - Utility-first CSS framework
 - **[Framer Motion 12](https://www.framer.com/motion/)** - Animation library
+
+### Backend & Database
+- **[MongoDB 6.x](https://www.mongodb.com/)** - NoSQL database
+- **[Mongoose 8.x](https://mongoosejs.com/)** - MongoDB object modeling
+- **Next.js API Routes** - Server-side API endpoints
+- **RESTful API** - CRUD operations for tasks
 
 ### Development Tools
 - **[ESLint](https://eslint.org/)** - Code linting
@@ -150,6 +191,93 @@ Taskify can be installed as a Progressive Web App on any device:
 - **Smooth Animations**: Framer Motion for delightful interactions
 - **Responsive Grid**: Adapts to all screen sizes
 
+## 🔧 Configuration
+
+### Environment Variables
+Create a `.env.local` file for environment-specific settings:
+```env
+# MongoDB Connection String (Required)
+MONGODB_URI=mongodb://localhost:27017/taskify
+
+# For MongoDB Atlas (cloud):
+# MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/taskify?retryWrites=true&w=majority
+
+# Application Configuration (Optional)
+NEXT_PUBLIC_APP_NAME=Taskify
+NEXT_PUBLIC_APP_VERSION=1.0.0
+```
+
+## 🔧 Configuration
+
+### Environment Variables
+Create a `.env.local` file for environment-specific settings:
+```env
+# MongoDB Connection String (Required)
+MONGODB_URI=mongodb://localhost:27017/taskify
+
+# For MongoDB Atlas (cloud):
+# MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/taskify?retryWrites=true&w=majority
+
+# Application Configuration (Optional)
+NEXT_PUBLIC_APP_NAME=Taskify
+NEXT_PUBLIC_APP_VERSION=1.0.0
+```
+
+### Troubleshooting
+
+#### MongoDB Connection Issues
+1. **Local MongoDB**: Ensure MongoDB service is running
+   ```bash
+   # Windows
+   net start MongoDB
+   
+   # macOS/Linux
+   sudo systemctl start mongod
+   ```
+
+2. **MongoDB Atlas**: Check your connection string and network access settings
+
+3. **Firewall**: Ensure MongoDB port (27017) is accessible
+
+#### Common Issues
+- **"Module not found" errors**: Run `npm install` to install dependencies
+- **Database connection timeout**: Verify your MONGODB_URI in `.env.local`
+- **Tasks not loading**: Check browser console for API errors
+- **Local development**: The app falls back to localStorage if MongoDB is unavailable
+
+### Database Schema
+The app uses MongoDB with Mongoose for data modeling. Here's the task schema:
+
+```typescript
+interface Task {
+  id: string;
+  title: string;
+  description: string;
+  completed: boolean;
+  priority: 'low' | 'medium' | 'high';
+  dueDate: Date | null;
+  category: string;
+  tags: string[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+```
+
+### API Endpoints
+- `GET /api/tasks` - Fetch all tasks
+- `POST /api/tasks` - Create a new task
+- `GET /api/tasks/[id]` - Get a specific task
+- `PUT /api/tasks/[id]` - Update a task
+- `DELETE /api/tasks/[id]` - Delete a task
+
+### Data Migration & Fallback
+The app includes intelligent fallback mechanisms:
+
+- **Offline Mode**: If MongoDB is unavailable, the app falls back to localStorage
+- **Data Sync**: When the database becomes available, local changes are synchronized
+- **Migration**: Existing localStorage data is automatically migrated to MongoDB
+- **Backup**: All data is continuously backed up to localStorage as a safety net
+
 ### PWA Configuration
 The PWA settings are configured in `public/manifest.json`:
 - App name and description
@@ -175,22 +303,38 @@ The PWA settings are configured in `public/manifest.json`:
 
 ## 🚧 Future Enhancements
 
+### Recent Updates ✨
+- **MongoDB Integration**: Added MongoDB database for persistent task storage
+- **API Endpoints**: RESTful API for all CRUD operations
+- **Offline Fallback**: Intelligent fallback to localStorage when database is unavailable
+- **Data Synchronization**: Automatic sync between database and local storage
+- **Error Handling**: Comprehensive error handling with user-friendly messages
+- **Loading States**: Beautiful loading indicators for better UX
+- **Database Seeding**: Sample data script to get started quickly
+
 ### Planned Features
-- 🔐 **User Authentication**: Multi-user support
-- ☁️ **Cloud Sync**: Cross-device synchronization
-- 📱 **Push Notifications**: Task reminders
-- 📈 **Analytics**: Productivity insights
-- 🎯 **Goal Setting**: Long-term objectives
-- 📊 **Data Export**: Backup and migration tools
-- 🤝 **Collaboration**: Shared task lists
-- 🔌 **API Integration**: Connect with external services
+- 🔐 **User Authentication**: Multi-user support with secure login
+- ☁️ **Real-time Sync**: Live updates across multiple devices
+- 📱 **Push Notifications**: Task reminders and due date alerts
+- 📈 **Analytics Dashboard**: Productivity insights and statistics
+- 🎯 **Goal Setting**: Long-term objectives and milestones
+- 📊 **Data Export**: Backup and migration tools (JSON, CSV)
+- 🤝 **Team Collaboration**: Shared task lists and assignments
+- 🔌 **Third-party Integrations**: Calendar, email, and productivity tools
+- 🔍 **Advanced Search**: Full-text search with filters and sorting
+- 📱 **Mobile App**: Native iOS and Android applications
 
 ### Technical Improvements
+- Database indexing and query optimization
+- Caching layer with Redis for improved performance
 - Real-time collaboration with WebSockets
-- Advanced search with full-text indexing
-- Drag-and-drop task reordering
+- Advanced search with full-text indexing (MongoDB Atlas Search)
+- Drag-and-drop task reordering with touch support
 - Bulk operations for multiple tasks
 - Keyboard shortcuts for power users
+- Offline-first architecture with conflict resolution
+- API rate limiting and security enhancements
+- Automated testing and CI/CD pipeline
 
 ## 🤝 Contributing
 

@@ -1,18 +1,22 @@
 'use client';
 
-import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, ReactNode, useState } from 'react';
 import { Task, TaskAction, TaskState, TaskFilter, TaskSort } from '@/types/task';
+import * as api from '@/lib/api';
 
 const TaskContext = createContext<{
   state: TaskState;
   dispatch: React.Dispatch<TaskAction>;
-  addTask: (task: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>) => void;
-  updateTask: (id: string, updates: Partial<Task>) => void;
-  deleteTask: (id: string) => void;
-  toggleTask: (id: string) => void;
+  addTask: (task: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
+  updateTask: (id: string, updates: Partial<Task>) => Promise<void>;
+  deleteTask: (id: string) => Promise<void>;
+  toggleTask: (id: string) => Promise<void>;
   setFilter: (filter: Partial<TaskFilter>) => void;
   setSort: (sort: TaskSort) => void;
   filteredAndSortedTasks: Task[];
+  loading: boolean;
+  error: string | null;
+  refetchTasks: () => Promise<void>;
 } | null>(null);
 
 const initialState: TaskState = {
@@ -32,6 +36,12 @@ const initialState: TaskState = {
 
 function taskReducer(state: TaskState, action: TaskAction): TaskState {
   switch (action.type) {
+    case 'SET_TASKS': {
+      return {
+        ...state,
+        tasks: action.payload,
+      };
+    }
     case 'ADD_TASK': {
       const newTask: Task = {
         ...action.payload,
@@ -68,12 +78,6 @@ function taskReducer(state: TaskState, action: TaskAction): TaskState {
             ? { ...task, completed: !task.completed, updatedAt: new Date().toISOString() }
             : task
         ),
-      };
-    }
-    case 'SET_TASKS': {
-      return {
-        ...state,
-        tasks: action.payload,
       };
     }
     case 'SET_FILTER': {
@@ -164,39 +168,106 @@ function sortTasks(tasks: Task[], sort: TaskSort): Task[] {
 
 export function TaskProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(taskReducer, initialState);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // Load tasks from localStorage on mount
-  useEffect(() => {
-    const savedTasks = localStorage.getItem('tasks');
-    if (savedTasks) {
-      try {
-        const tasks = JSON.parse(savedTasks);
-        dispatch({ type: 'SET_TASKS', payload: tasks });
-      } catch (error) {
-        console.error('Error loading tasks from localStorage:', error);
+  // Load tasks from MongoDB on mount
+  const fetchTasks = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const tasks = await api.fetchTasks();
+      dispatch({ type: 'SET_TASKS', payload: tasks });
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch tasks';
+      setError(errorMessage);
+      console.error('Error fetching tasks:', err);
+      
+      // Fallback to localStorage if API fails
+      const savedTasks = localStorage.getItem('tasks');
+      if (savedTasks) {
+        try {
+          const tasks = JSON.parse(savedTasks);
+          dispatch({ type: 'SET_TASKS', payload: tasks });
+        } catch (parseError) {
+          console.error('Error parsing localStorage tasks:', parseError);
+        }
       }
+    } finally {
+      setLoading(false);
     }
+  };
+
+  useEffect(() => {
+    fetchTasks();
   }, []);
 
-  // Save tasks to localStorage whenever tasks change
+  // Save tasks to localStorage as backup whenever tasks change
   useEffect(() => {
     localStorage.setItem('tasks', JSON.stringify(state.tasks));
   }, [state.tasks]);
 
-  const addTask = (task: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>) => {
-    dispatch({ type: 'ADD_TASK', payload: task });
+  const addTask = async (task: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>) => {
+    try {
+      setError(null);
+      const newTask = await api.createTask(task);
+      dispatch({ type: 'SET_TASKS', payload: [...state.tasks, newTask] });
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to create task';
+      setError(errorMessage);
+      console.error('Error creating task:', err);
+      
+      // Fallback to local state if API fails
+      dispatch({ type: 'ADD_TASK', payload: task });
+    }
   };
 
-  const updateTask = (id: string, updates: Partial<Task>) => {
-    dispatch({ type: 'UPDATE_TASK', payload: { id, updates } });
+  const updateTask = async (id: string, updates: Partial<Task>) => {
+    try {
+      setError(null);
+      const updatedTask = await api.updateTask(id, updates);
+      dispatch({ type: 'UPDATE_TASK', payload: { id, updates: updatedTask } });
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to update task';
+      setError(errorMessage);
+      console.error('Error updating task:', err);
+      
+      // Fallback to local state if API fails
+      dispatch({ type: 'UPDATE_TASK', payload: { id, updates } });
+    }
   };
 
-  const deleteTask = (id: string) => {
-    dispatch({ type: 'DELETE_TASK', payload: id });
+  const deleteTask = async (id: string) => {
+    try {
+      setError(null);
+      await api.deleteTask(id);
+      dispatch({ type: 'DELETE_TASK', payload: id });
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to delete task';
+      setError(errorMessage);
+      console.error('Error deleting task:', err);
+      
+      // Fallback to local state if API fails
+      dispatch({ type: 'DELETE_TASK', payload: id });
+    }
   };
 
-  const toggleTask = (id: string) => {
-    dispatch({ type: 'TOGGLE_TASK', payload: id });
+  const toggleTask = async (id: string) => {
+    try {
+      setError(null);
+      const task = state.tasks.find(t => t.id === id);
+      if (!task) return;
+      
+      const updatedTask = await api.toggleTaskCompletion(id, !task.completed);
+      dispatch({ type: 'UPDATE_TASK', payload: { id, updates: updatedTask } });
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to toggle task';
+      setError(errorMessage);
+      console.error('Error toggling task:', err);
+      
+      // Fallback to local state if API fails
+      dispatch({ type: 'TOGGLE_TASK', payload: id });
+    }
   };
 
   const setFilter = (filter: Partial<TaskFilter>) => {
@@ -205,6 +276,10 @@ export function TaskProvider({ children }: { children: ReactNode }) {
 
   const setSort = (sort: TaskSort) => {
     dispatch({ type: 'SET_SORT', payload: sort });
+  };
+
+  const refetchTasks = async () => {
+    await fetchTasks();
   };
 
   const filteredAndSortedTasks = sortTasks(filterTasks(state.tasks, state.filter), state.sort);
@@ -221,6 +296,9 @@ export function TaskProvider({ children }: { children: ReactNode }) {
         setFilter,
         setSort,
         filteredAndSortedTasks,
+        loading,
+        error,
+        refetchTasks,
       }}
     >
       {children}

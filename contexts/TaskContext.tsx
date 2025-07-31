@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useReducer, useEffect, ReactNode, useState } from 'react';
 import { Task, TaskAction, TaskState, TaskFilter, TaskSort } from '@/types/task';
 import * as api from '@/lib/api';
+import sampleTasks from '@/data/sampleTasks';
 
 const TaskContext = createContext<{
   state: TaskState;
@@ -171,19 +172,13 @@ export function TaskProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Load tasks from MongoDB on mount
+  // Load tasks from localStorage first, then try to sync with MongoDB
   const fetchTasks = async () => {
     try {
       setLoading(true);
       setError(null);
-      const tasks = await api.fetchTasks();
-      dispatch({ type: 'SET_TASKS', payload: tasks });
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch tasks';
-      setError(errorMessage);
-      console.error('Error fetching tasks:', err);
       
-      // Fallback to localStorage if API fails
+      // Load from localStorage first
       const savedTasks = localStorage.getItem('tasks');
       if (savedTasks) {
         try {
@@ -192,7 +187,24 @@ export function TaskProvider({ children }: { children: ReactNode }) {
         } catch (parseError) {
           console.error('Error parsing localStorage tasks:', parseError);
         }
+      } else {
+        // If no saved tasks, load sample data
+        dispatch({ type: 'SET_TASKS', payload: sampleTasks });
+        localStorage.setItem('tasks', JSON.stringify(sampleTasks));
       }
+      
+      // Try to sync with API as an enhancement (don't block if it fails)
+      try {
+        const tasks = await api.fetchTasks();
+        dispatch({ type: 'SET_TASKS', payload: tasks });
+      } catch (apiErr) {
+        // Silent fail - localStorage is our primary storage
+        console.log('API not available, using localStorage. Error:', apiErr);
+      }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load tasks';
+      setError(errorMessage);
+      console.error('Error loading tasks:', err);
     } finally {
       setLoading(false);
     }
@@ -210,63 +222,82 @@ export function TaskProvider({ children }: { children: ReactNode }) {
   const addTask = async (task: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>) => {
     try {
       setError(null);
-      const newTask = await api.createTask(task);
-      dispatch({ type: 'SET_TASKS', payload: [...state.tasks, newTask] });
+      
+      // Always update local state first
+      dispatch({ type: 'ADD_TASK', payload: task });
+      
+      // Try to sync with API as enhancement
+      try {
+        await api.createTask(task);
+      } catch (apiErr) {
+        console.log('API sync failed for new task, continuing with localStorage:', apiErr);
+      }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to create task';
       setError(errorMessage);
       console.error('Error creating task:', err);
-      
-      // Fallback to local state if API fails
-      dispatch({ type: 'ADD_TASK', payload: task });
     }
   };
 
   const updateTask = async (id: string, updates: Partial<Task>) => {
     try {
       setError(null);
-      const updatedTask = await api.updateTask(id, updates);
-      dispatch({ type: 'UPDATE_TASK', payload: { id, updates: updatedTask } });
+      
+      // Always update local state first
+      dispatch({ type: 'UPDATE_TASK', payload: { id, updates } });
+      
+      // Try to sync with API as enhancement
+      try {
+        await api.updateTask(id, updates);
+      } catch (apiErr) {
+        console.log('API sync failed for task update, continuing with localStorage:', apiErr);
+      }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to update task';
       setError(errorMessage);
       console.error('Error updating task:', err);
-      
-      // Fallback to local state if API fails
-      dispatch({ type: 'UPDATE_TASK', payload: { id, updates } });
     }
   };
 
   const deleteTask = async (id: string) => {
     try {
       setError(null);
-      await api.deleteTask(id);
+      
+      // Always update local state first
       dispatch({ type: 'DELETE_TASK', payload: id });
+      
+      // Try to sync with API as enhancement
+      try {
+        await api.deleteTask(id);
+      } catch (apiErr) {
+        console.log('API sync failed for task deletion, continuing with localStorage:', apiErr);
+      }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to delete task';
       setError(errorMessage);
       console.error('Error deleting task:', err);
-      
-      // Fallback to local state if API fails
-      dispatch({ type: 'DELETE_TASK', payload: id });
     }
   };
 
   const toggleTask = async (id: string) => {
     try {
       setError(null);
-      const task = state.tasks.find(t => t.id === id);
+      const task = state.tasks.find((t: Task) => t.id === id);
       if (!task) return;
       
-      const updatedTask = await api.toggleTaskCompletion(id, !task.completed);
-      dispatch({ type: 'UPDATE_TASK', payload: { id, updates: updatedTask } });
+      // Always update local state first
+      dispatch({ type: 'TOGGLE_TASK', payload: id });
+      
+      // Try to sync with API as enhancement
+      try {
+        await api.toggleTaskCompletion(id, !task.completed);
+      } catch (apiErr) {
+        console.log('API sync failed for task toggle, continuing with localStorage:', apiErr);
+      }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to toggle task';
       setError(errorMessage);
       console.error('Error toggling task:', err);
-      
-      // Fallback to local state if API fails
-      dispatch({ type: 'TOGGLE_TASK', payload: id });
     }
   };
 
